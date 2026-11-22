@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#121214">
+  <title>MyPay</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/static/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <script>
+    if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js'); }
+    function soon() { alert('Tez orada'); return false; }
+  </script>
+  <style>
+
+    *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,"Segoe UI",Roboto,system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
+    :root{--bg:#121214;--card:#1f1f22;--blue:#1a73ff;--muted:#9b9ba1;--line:#2c2c30}
+    body{background:var(--bg);color:#fff;max-width:480px;margin:0 auto;min-height:100vh;padding:env(safe-area-inset-top) 0 120px}
+    a{color:inherit;text-decoration:none}
+    .i{width:24px;height:24px;flex:none}
+    .muted{color:var(--muted);font-size:14px}
+    .top{padding:22px 24px 8px}.top h2{font-size:24px}
+    .card{background:var(--card);border-radius:16px;padding:16px;margin:14px 24px}
+    input{width:100%;padding:15px;border:0;border-radius:12px;margin:8px 0;font-size:16px;background:#2a2a2e;color:#fff;outline:0}
+    button,.btn{display:block;width:100%;text-align:center;background:var(--blue);color:#fff;border:0;padding:15px;border-radius:12px;font-size:16px;cursor:pointer;margin-top:8px}
+    .tx{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line)}
+    .tx:last-child{border:0}
+    .plus{color:#34d399}.minus{color:#f87171}
+    .msg{margin:12px 24px;padding:12px;border-radius:12px;background:#3a3320}
+    .msg.success{background:#16382b}.msg.error{background:#40201f}
+    a.link{color:var(--blue)}
+
+    /* Bosh sahifa */
+    .hdr{display:flex;align-items:center;gap:14px;padding:22px 24px 10px}
+    .avatar{position:relative;width:52px;height:52px;border-radius:18px;border:3px solid var(--blue);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;background:#2a2a2e;flex:none}
+    .chk{position:absolute;right:-6px;bottom:-6px;width:20px;height:20px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center}
+    .chk .i{width:12px;height:12px;color:#fff}
+    .search{flex:1;background:#2a2a2e;border-radius:12px;padding:14px;display:flex;align-items:center;gap:10px;color:var(--muted);font-size:18px}
+    .bell{color:var(--blue);width:30px;height:30px}
+    .balance{position:relative;padding:22px 24px 10px 72px;min-height:190px}
+    .biz{position:absolute;left:0;top:14px;width:48px;height:180px;background:#fff;color:#111;border-radius:16px 0 0 16px;writing-mode:vertical-rl;transform:rotate(180deg);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px}
+    .lg{font-size:20px}
+    .big{font-size:46px;font-weight:700;line-height:1.1;margin:4px 0 14px}
+    .big small{font-size:28px}
+    .row{display:flex;align-items:center;gap:8px;font-weight:700;font-size:20px;margin-top:6px}
+    .dot{width:28px;height:28px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center}
+    .dot .i{width:14px;height:14px;color:#fff}
+    .eye{position:absolute;right:24px;top:70px;width:auto;margin:0;padding:0;background:none;color:var(--muted)}
+    .eye .i{width:34px;height:34px}
+    .promo{position:absolute;right:24px;bottom:6px;background:#e8112d;padding:12px 24px;border-radius:30px;font-weight:800;font-style:italic;font-size:22px}
+    .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:0 24px;margin-top:6px}
+    .tiles a{background:var(--card);border-radius:16px;padding:18px 4px;text-align:center;font-size:15px;line-height:1.25;display:flex;flex-direction:column;align-items:center;gap:10px}
+    .tiles .i{color:var(--blue);width:34px;height:34px}
+    .my{display:flex;align-items:center;gap:16px;background:var(--card);border-radius:16px;padding:18px;margin:14px 24px}
+    .my .logo{width:50px;height:50px;border-radius:16px;background:linear-gradient(135deg,#29c5ff,#1a73ff);display:flex;align-items:center;justify-content:center;flex:none}
+    .my .logo .i{color:#fff}
+    .my b{font-size:20px;font-weight:600;display:block}
+    .my .go{margin-left:auto;color:var(--muted)}
+    .banners{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding:0 24px;scrollbar-width:none}
+    .banners::-webkit-scrollbar{display:none}
+    .banner{flex:0 0 100%;scroll-snap-align:center;background:#f1f2f4;color:#111;border-radius:16px;padding:22px 20px;min-height:138px}
+    .banner b{font-size:24px;line-height:1.15;display:block;margin-bottom:14px;max-width:62%}
+    .banner span{background:var(--blue);color:#fff;padding:9px 40px 9px 14px;border-radius:8px;font-weight:600;font-size:15px}
+    .banner.b2{background:linear-gradient(135deg,#1a73ff,#7c3aed);color:#fff}
+    .banner.b2 span{background:#fff;color:var(--blue)}
+    .sec{display:flex;justify-content:space-between;align-items:center;padding:26px 24px 6px;font-size:22px;font-weight:700}
+    .sec a{color:var(--blue);font-size:16px;font-weight:500}
+    .minis{display:grid;grid-template-columns:repeat(4,1fr);gap:18px 4px;padding:14px 12px;text-align:center}
+    .minis a{font-size:14px;display:flex;flex-direction:column;align-items:center;gap:8px}
+    .minis .mi{font-size:36px;line-height:1}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px 24px}
+    .grid a{background:var(--card);border-radius:16px;padding:18px 6px;text-align:center;font-size:14px}
+    .grid .ic{font-size:30px;margin-bottom:6px}
+    .fab{position:fixed;bottom:96px;right:max(16px,calc(50% - 224px));width:64px;height:64px;border-radius:50%;background:#1b1b1d;border:1px solid #3a3a3e;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(0,0,0,.5)}
+    .fab .i{width:30px;height:30px;color:#fff}
+
+    /* Pastki menyu */
+    nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#1c1c1f;display:flex;justify-content:space-around;padding:12px 0 calc(14px + env(safe-area-inset-bottom));border-radius:20px 20px 0 0}
+    nav a{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:13px;color:#8e8e93;position:relative}
+    nav a.on{color:var(--blue)}
+    nav .i{width:34px;height:34px}
+    .new{position:absolute;top:-8px;right:4px;background:#ff5a1f;color:#fff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:10px}
+        /* tepada qotib turadigan sarlavha */
+    .hdr{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg)}
+    /* Mini Apps */
+    .minis{display:grid;grid-template-columns:repeat(4,1fr);gap:22px 4px;padding:14px 12px 4px;text-align:center}
+    .minis a{font-size:14px;line-height:1.2;display:flex;flex-direction:column;align-items:center;gap:8px}
+    .mic{position:relative;width:48px;height:48px}
+    .mic svg{width:48px;height:48px;display:block}
+    .bdg{position:absolute;top:-8px;right:-16px;font-size:12px;font-weight:700;color:#fff;padding:3px 8px;border-radius:12px;font-style:normal}
+    .bdg.nw{background:var(--blue)}.bdg.red{background:#e11d48}
+    /* Mobil aloqa to'lovi */
+    .phone{display:flex;gap:12px;padding:14px 24px 0}
+    .phone .inp{flex:1;position:relative}
+    .phone input{margin:0;background:#202023;border:1.5px solid #4a4a50;padding:16px 56px 16px 16px;font-size:18px}
+    .phone .pk{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:38px;height:38px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center}
+    .phone .pk .i{width:20px;height:20px;color:#121214}
+    .phone button{width:168px;margin:0;padding:0;font-size:20px;font-weight:600}
+    /* Reklama kartalari */
+    .stories{display:flex;gap:10px;overflow-x:auto;padding:22px 24px 6px;scrollbar-width:none}
+    .stories::-webkit-scrollbar{display:none}
+    .story{flex:0 0 164px;height:164px;border-radius:18px;border:3px solid var(--blue);overflow:hidden;position:relative;padding:12px;color:#111;background:#fff}
+    .story b{font-size:17px;line-height:1.1;display:block;font-weight:800}
+    .story .ph{position:absolute;left:50%;bottom:-26px;transform:translateX(-50%);width:84px}
+    .s2{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:4px}
+    .s2 .big0{font-size:54px;font-weight:900;color:var(--blue);line-height:1}
+    .s2 span.t{font-size:13px;color:#555}
+    .s3{background:linear-gradient(160deg,#7c3aed,#ec4899);color:#fff;display:flex;flex-direction:column;justify-content:flex-end;gap:8px}
+    .s3 .pill{align-self:flex-start;background:rgba(255,255,255,.25);padding:4px 10px;border-radius:12px;font-size:12px;font-weight:700}
+    .s3 b{font-size:26px}
+    .s4{background:var(--blue);color:#fff;display:flex;align-items:flex-end}
+    /* Joylarda to'lov */
+    .place{display:flex;align-items:center;gap:14px;background:var(--card);border-radius:16px;padding:12px;margin:10px 24px}
+    .place b{font-size:20px;display:block;margin-bottom:6px;font-weight:700}
+    .place .muted{display:flex;align-items:center;gap:6px;font-size:16px}
+    .nv{width:18px;height:18px}
+    .pl{width:66px;height:66px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:none}
+    .pl svg{width:40px;height:40px;color:#fff}
+    .pl1{background:linear-gradient(135deg,#22d3ee,#0ea5e9)}
+    .pl2{background:#000;border:1px solid #333}
+    .settings{display:flex;align-items:center;justify-content:center;gap:12px;color:var(--blue);font-size:21px;font-weight:700;padding:34px 0 14px}
+    .settings .i{width:34px;height:34px}
+    /* To'lovlar sahifasi */
+    .grid .ic .i{width:32px;height:32px;color:var(--blue)}
+        /* To'lov sahifasi */
+    .ptitle{text-align:center;font-size:22px;font-weight:700;padding:26px 0 18px}
+    .psrow{display:flex;align-items:center;gap:14px;padding:0 24px}
+    .psearch{flex:1;display:flex;align-items:center;gap:10px;background:#2a2a2e;border-radius:12px;padding:0 14px;color:var(--muted)}
+    .psearch .i{width:28px;height:28px}
+    .psearch input{margin:0;padding:16px 0;background:none;font-size:19px}
+    .psearch input::placeholder{color:#74747b}
+    .pqr{color:var(--blue);flex:none}
+    .pqr .i{width:44px;height:44px}
+    .quick{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:30px 12px 6px;text-align:center}
+    .quick a{display:flex;flex-direction:column;align-items:center;gap:10px;font-size:15px;line-height:1.2;padding:0 2px}
+    .quick .i{width:46px;height:46px}
+    .saved{display:inline-block;width:190px;background:var(--card);border-radius:16px;padding:14px;margin:26px 0 10px 24px;vertical-align:top}
+    .saved .si{width:38px;height:38px;border-radius:8px;background:#fff;color:var(--blue);display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+    .saved .si .i{width:24px;height:24px}
+    .saved b{display:block;font-size:17px;margin-bottom:4px}
+    .saved .muted{font-size:15px;line-height:1.35}
+    .cats{padding-top:16px}
+    .cat{background:var(--card);border-radius:14px;margin:12px 24px}
+    .cat>summary,.cat>a{display:flex;align-items:center;gap:16px;padding:22px 18px;font-size:22px;list-style:none;cursor:pointer}
+    .cat>summary::-webkit-details-marker{display:none}
+    .cat .i{width:34px;height:34px;color:var(--blue)}
+    .cat .sub{display:block;padding:4px 18px 14px 68px}
+    .cat .sub a{display:block;padding:12px 0;font-size:19px;border-top:1px solid var(--line)}
+    .cat.hide{display:none}
+        /* O'tkazma sahifasi */
+    .tsearch{display:flex;align-items:center;gap:10px;margin:0 24px;padding:8px 10px 8px 16px;background:#202023;border:1.5px solid #4a4a50;border-radius:14px}
+    .tsearch input{margin:0;padding:10px 0;background:none;font-size:18px;flex:1;min-width:0}
+    .tsearch input::placeholder{color:#8a8a91;font-size:17px}
+    .tsearch .i{width:40px;height:40px;flex:none}
+    .tsearch .sc{color:var(--blue)}
+    .ttiles{display:flex;gap:12px;overflow-x:auto;padding:22px 24px 4px;scrollbar-width:none}
+    .ttiles::-webkit-scrollbar{display:none}
+    .ttiles a{flex:0 0 136px;height:106px;background:var(--card);border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;font-size:16px;line-height:1.25}
+    .ttiles .i{width:32px;height:32px;color:var(--blue)}
+    .bigrow{display:flex;align-items:center;gap:16px;background:var(--card);border-radius:16px;padding:22px 18px;margin:16px 24px 6px;font-size:21px}
+    .bigrow .i{width:30px;height:30px;color:var(--blue);flex:none}
+    .bigrow .go{margin-left:auto;color:var(--muted);width:28px;height:28px}
+    .dlabel{color:var(--muted);font-size:17px;padding:18px 24px 4px}
+    .rec{display:flex;align-items:center;gap:16px;background:var(--card);border-radius:18px;padding:14px;margin:10px 24px}
+    .rav{width:56px;height:56px;border-radius:50%;background:#121214;display:flex;align-items:center;justify-content:center;font-size:21px;flex:none}
+    .rec .nm{flex:1;min-width:0}
+    .rec b{display:block;font-size:21px;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis}
+    .rec .mk{color:var(--muted);font-size:19px;letter-spacing:.5px}
+    .racts{display:flex;align-items:center;gap:14px;color:#a3a3aa}
+    .racts .i{width:30px;height:30px}
+    .racts hr{width:1px;height:28px;border:0;background:#4a4a50}
+    .hide{display:none!important}
+    .empty{text-align:center;padding:50px 24px;color:var(--muted)}
+        /* Hisobotlar */
+    .hide{display:none!important}
+    .htop{display:flex;align-items:center;justify-content:space-between;padding:28px 24px 14px}
+    .htop h1{font-size:40px;font-weight:700}
+    .htop .acts{display:flex;gap:22px;color:var(--blue)}
+    .htop .acts .i{width:40px;height:40px}
+    .chips{display:flex;gap:10px;overflow-x:auto;padding:16px 24px 6px;scrollbar-width:none}
+    .chips::-webkit-scrollbar{display:none}
+    .chips select{flex:none;appearance:none;-webkit-appearance:none;color:#fff;border:0;border-radius:26px;padding:16px 42px 16px 20px;font-size:18px;outline:0;
+      background:#2a2a2e url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%231a73ff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>") no-repeat right 14px center}
+    .sum{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px 24px 0}
+    .sum>div{background:var(--card);border-radius:18px;padding:16px 14px}
+    .sum .l{color:var(--muted);font-size:14px;margin-bottom:10px}
+    .sum .v{display:flex;align-items:center;gap:8px;font-size:24px;font-weight:700;white-space:nowrap}
+    .sum .v small{font-size:16px;color:var(--muted);font-weight:500}
+    .sum .v .i{width:28px;height:28px;flex:none}
+    .mon{display:flex;align-items:center;gap:16px;background:var(--card);border-radius:18px;padding:20px 18px;margin:14px 24px 0}
+    .mon .i{width:36px;height:36px;flex:none}
+    .mon b{display:block;font-size:21px;margin-bottom:4px}
+    .mon span{color:var(--muted);font-size:17px;line-height:1.3}
+    .mon .go{margin-left:auto;color:var(--muted);width:28px;height:28px}
+    .dh{padding:28px 24px 0}
+    .dh h3{font-size:25px;font-weight:700;margin-bottom:2px}
+    .dh .sub{display:flex;justify-content:space-between;color:var(--muted);font-size:18px}
+    .hrow{display:flex;align-items:center;gap:16px;background:var(--card);border-radius:18px;padding:14px;margin:14px 24px 0}
+    .hi{width:72px;height:72px;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;flex:none;color:var(--blue)}
+    .hi .i{width:40px;height:40px}
+    .hrow .nm{flex:1;min-width:0}
+    .hrow .nm b{display:block;font-size:21px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:2px}
+    .hrow .nm span{color:var(--muted);font-size:17px}
+    .hrow .am{text-align:right;font-size:21px;font-weight:700;white-space:nowrap}
+    .hrow .am small{font-size:16px;font-weight:500;color:#cfd0d4}
+    .hrow .am i{display:block;font-style:normal;color:var(--muted);font-size:16px;font-weight:400;margin-top:6px}
+    .hrow .am.in{color:#34d399}
+        /* Mini Apps */
+    .mh{display:flex;justify-content:space-between;align-items:center;padding:28px 24px 12px}
+    .mh h1{font-size:40px;font-weight:700}
+    .reg{appearance:none;-webkit-appearance:none;background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%231a73ff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>") no-repeat right center;border:0;color:var(--blue);font-size:21px;padding:6px 28px 6px 0;outline:0;margin:0;width:auto}
+    .reg option{background:#1f1f22;color:#fff}
+    .mtitle{padding:30px 24px 0;font-size:25px;font-weight:700}
+    .sg{display:grid;grid-template-columns:repeat(4,1fr);gap:20px 4px;padding:18px 12px 0;text-align:center}
+    .sg a{display:flex;flex-direction:column;align-items:center;gap:10px;font-size:16px;line-height:1.2;padding:0 2px}
+    .sg .mic{width:50px;height:50px}.sg .mic svg{width:50px;height:50px}
+    .cch{display:flex;gap:10px;overflow-x:auto;padding:30px 24px 6px;scrollbar-width:none}
+    .cch::-webkit-scrollbar{display:none}
+    .chip{flex:none;display:flex;align-items:center;gap:10px;background:#2a2a2e;border-radius:26px;padding:13px 18px;font-size:19px;cursor:pointer}
+    .chip .i{width:26px;height:26px;color:var(--blue)}
+    .chip.on{background:var(--blue)}
+    .chip.on .i{color:#fff}
+    .mapp{display:flex;align-items:center;gap:16px;background:var(--card);border-radius:16px;padding:16px;margin:10px 24px}
+    .mapp .mlg{width:42px;height:42px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:21px;color:#fff;flex:none}
+    .mapp b{display:block;font-size:22px;font-weight:600;margin-bottom:4px}
+    .mapp span{color:var(--muted);font-size:18px;line-height:1.3}
+    .mon .dots{color:var(--blue)}
+  </style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" xmlns="http://www.w3.org/2000/svg">
+      <symbol id="k-home" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.5L2.5 11H5v9.5h5v-6h4v6h5V11h2.5z"/></symbol>
+  <symbol id="k-car" viewBox="0 0 24 24"><path fill="currentColor" d="M5 11l1.6-4.4A2 2 0 018.5 5h7a2 2 0 011.9 1.6L19 11c.9.3 1.5 1.1 1.5 2v4.5a1 1 0 01-1 1H18a1 1 0 01-1-1V16H7v1.5a1 1 0 01-1 1H4.5a1 1 0 01-1-1V13c0-.9.6-1.7 1.5-2z"/><circle cx="7.5" cy="13.2" r="1.2" fill="#2a2a2e"/><circle cx="16.5" cy="13.2" r="1.2" fill="#2a2a2e"/></symbol>
+  <symbol id="k-food" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l-1.2 12.2a1.6 1.6 0 01-1.6 1.4H8.8a1.6 1.6 0 01-1.6-1.4zM9.5 8l.8-5H15M7 13h10"/></symbol>
+  <symbol id="k-bag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1 12.5H6zM9 10V6.5a3 3 0 016 0V10"/></symbol>
+      <symbol id="i-dl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10.5l5 5 5-5M3 16v3a2 2 0 002 2h14a2 2 0 002-2v-3"/></symbol>
+  <symbol id="i-pieo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 2.5V12h9.5"/><path d="M12 12L6 18.5" /></symbol>
+  <symbol id="h-in" viewBox="0 0 24 24"><rect x="3" y="14" width="18" height="6.5" rx="2" fill="#cfd3da"/><path d="M12 3v9M8.5 8.8L12 12.3l3.5-3.5" fill="none" stroke="#19c37d" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="h-out" viewBox="0 0 24 24"><rect x="3" y="14" width="18" height="6.5" rx="2" fill="#cfd3da"/><path d="M12 12V3M8.5 6.5L12 3l3.5 3.5" fill="none" stroke="#ff7a00" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="h-mon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#1a73ff"/><path d="M12 12l-4.5 3.2" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></symbol>
+      <symbol id="i-contact" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#1a73ff"/><circle cx="12" cy="9.5" r="3.6" fill="#121214"/><path fill="#121214" d="M5.5 19.5c.8-3.2 3.3-4.8 6.5-4.8s5.7 1.6 6.5 4.8a10 10 0 01-13 0z"/></symbol>
+  <symbol id="i-scan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8V5a2 2 0 012-2h3M16 3h3a2 2 0 012 2v3M21 16v3a2 2 0 01-2 2h-3M8 21H5a2 2 0 01-2-2v-3M7 12h10"/></symbol>
+  <symbol id="t-swap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16M16 4l4 4-4 4M20 16H4M8 12l-4 4 4 4"/></symbol>
+  <symbol id="t-request" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2.5" width="12" height="19" rx="3"/><path d="M2.5 12H12M9 9l3 3-3 3"/></symbol>
+  <symbol id="t-lend" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="15" cy="5.5" r="2.6"/><path d="M10.5 12.5c1-1.6 2.8-2.5 4.5-2.5s3.5.9 4.5 2.5M2.5 15.5h4L12 17.4l5-1.6a1.6 1.6 0 011 3L11.5 21H6.5l-4-2"/></symbol>
+  <symbol id="t-phone" viewBox="0 0 24 24"><rect x="5.5" y="1.5" width="13" height="21" rx="3.2" fill="currentColor"/><circle cx="12" cy="19" r="1.1" fill="#1f1f22"/></symbol>
+  <symbol id="i-pencil" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 21h17M5 16.5L15 6.5l3 3L8 19.5H5z"/></symbol>
+  <symbol id="i-starline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><polygon points="12,2.8 14.9,8.9 21.5,9.7 16.6,14.2 17.9,20.8 12,17.5 6.1,20.8 7.4,14.2 2.5,9.7 9.1,8.9"/></symbol>
+      <defs>
+    <linearGradient id="gstar" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff3dac"/><stop offset="1" stop-color="#7c3aed"/></linearGradient>
+  </defs>
+  <symbol id="c-signal" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="15" width="4" height="6" rx="1"/><rect x="9" y="11" width="4" height="10" rx="1"/><rect x="15" y="6" width="4" height="15" rx="1"/></symbol>
+  <symbol id="c-gov" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l10 5v2H2V7z"/><rect x="4" y="11" width="3" height="7"/><rect x="10.5" y="11" width="3" height="7"/><rect x="17" y="11" width="3" height="7"/><rect x="2" y="19.5" width="20" height="2.5" rx="1"/></symbol>
+  <symbol id="c-house" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 11h3v10h14V11h3z"/><path fill="#1f1f22" d="M13 8l-4 6h3l-1 4 4-6h-3z"/></symbol>
+  <symbol id="c-percent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M19 5L5 19"/><circle cx="7" cy="7" r="2.6"/><circle cx="17" cy="17" r="2.6"/></symbol>
+  <symbol id="c-bank" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l10 5v2H2V7z"/><rect x="4" y="10.5" width="3" height="7.5"/><rect x="10.5" y="10.5" width="3" height="7.5"/><rect x="17" y="10.5" width="3" height="7.5"/><rect x="2" y="19" width="20" height="3" rx="1"/></symbol>
+  <symbol id="c-wifi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M2.5 9a14 14 0 0119 0M6 13a9 9 0 0112 0M9.2 16.8a4.5 4.5 0 015.6 0"/><circle cx="12" cy="20" r="1.3" fill="currentColor"/></symbol>
+  <symbol id="q-cal" viewBox="0 0 24 24"><rect x="2.5" y="4" width="19" height="18" rx="4" fill="#ff7a00"/><rect x="6" y="2" width="2.6" height="5" rx="1.3" fill="#ff7a00" stroke="#121214" stroke-width="1"/><rect x="15.4" y="2" width="2.6" height="5" rx="1.3" fill="#ff7a00" stroke="#121214" stroke-width="1"/><g fill="#121214"><circle cx="8" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="16" cy="12" r="1.3"/><circle cx="8" cy="16.5" r="1.3"/><circle cx="12" cy="16.5" r="1.3"/><circle cx="16" cy="16.5" r="1.3"/></g></symbol>
+  <symbol id="q-star" viewBox="0 0 24 24"><polygon fill="url(#gstar)" stroke="url(#gstar)" stroke-width="1.5" stroke-linejoin="round" points="12,2.5 14.9,8.8 21.7,9.5 16.6,14.1 18,21 12,17.5 6,21 7.4,14.1 2.3,9.5 9.1,8.8"/></symbol>
+  <symbol id="q-receipt" viewBox="0 0 24 24"><path fill="#1a8cff" d="M4 2h16v18l-2.7-1.6L14.6 20 12 18.4 9.4 20 6.7 18.4 4 20z"/><path d="M8 7h8M8 11h8M8 15h5" stroke="#121214" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="q-pin" viewBox="0 0 24 24"><path fill="#19c37d" d="M12 1.5c-4.6 0-8 3.4-8 7.8 0 5.6 8 13.2 8 13.2s8-7.6 8-13.2c0-4.4-3.4-7.8-8-7.8z"/><circle cx="12" cy="9.3" r="3" fill="#121214"/></symbol>
+      <symbol id="i-user" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8.5" r="4"/><path d="M4.5 20c.6-3.8 3.6-5.8 7.5-5.8s6.9 2 7.5 5.8a11 11 0 01-15 0z"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></symbol>
+  <symbol id="i-nav" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M12 3l9 9-9 9-9-9z"/><path d="M9.5 13.5l2.5-3.5 2.5 3.5"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.488.488 0 00-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.07.63-.07.94s.02.63.06.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></symbol>
+  <symbol id="s-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></symbol>
+  <symbol id="s-bolt" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L5 14h6l-1 8 9-12h-6z"/></symbol>
+  <symbol id="s-flame" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c4 0 7-2.7 7-6.5 0-3-2-5-3.5-6.5 0 2-1 3-2.2 3 .5-3-1-6.5-4.3-9 .3 3-1.5 4.8-3 6.5C4.7 11.3 5 13.5 5 15.5 5 19.3 8 22 12 22z"/></symbol>
+  <symbol id="s-drop" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3s6.5 6.8 6.5 11.5a6.5 6.5 0 01-13 0C5.5 9.8 12 3 12 3z"/></symbol>
+  <symbol id="m-wave" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 9c2.5-2 4.5-2 7 0s4.5 2 7 0 3-1.5 6 0M2 15c2.5-2 4.5-2 7 0s4.5 2 7 0 3-1.5 6 0"/></symbol>
+  <symbol id="m-oil" viewBox="0 0 24 24"><path fill="#ff6a13" d="M12 3s6 6.5 6 11a6 6 0 01-12 0c0-4.5 6-11 6-11z"/><path fill="#fff" d="M12 12s2.5 2.2 2.5 4a2.5 2.5 0 01-5 0c0-1.8 2.5-4 2.5-4z"/></symbol>
+  <symbol id="i-ring" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="7" stroke-width="4.5"/></symbol>
+  <symbol id="i-wallet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 012-2h12v4M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5"/><circle cx="16.5" cy="13" r="1.2"/></symbol>
+  <symbol id="i-transfer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 20V5M8 5L4 9M8 5l4 4M16 4v15M16 19l-4-4M16 19l4-4"/></symbol>
+  <symbol id="i-pie" viewBox="0 0 24 24" fill="currentColor"><path d="M11 3a9 9 0 109 9h-9z"/><path d="M13 2v8h8a8 8 0 00-8-8z"/></symbol>
+  <symbol id="i-apps" viewBox="0 0 24 24" fill="currentColor"><circle cx="8" cy="8" r="3.4"/><circle cx="16.5" cy="8" r="3.4"/><circle cx="8" cy="16.5" r="3.4"/><circle cx="16.5" cy="16.5" r="3.4"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3a6 6 0 00-6 6c0 6-2.5 8-2.5 8h17S18 15 18 9a6 6 0 00-6-6zM10 19h4a2 2 0 01-4 0z"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 12S5.5 5 12 5s10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-card" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="3"/><path d="M2.5 10h19M6 15h4"/></symbol>
+  <symbol id="i-barcode" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 5v14M8 5v14M12 5v14M15 5v14M20 5v14"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6.5" y="2.5" width="11" height="19" rx="3"/><path d="M10.5 18.5h3M3 8c-1 2.5-1 5.5 0 8M21 8c1 2.5 1 5.5 0 8"/></symbol>
+  <symbol id="i-qr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8V5a2 2 0 012-2h3M16 3h3a2 2 0 012 2v3M21 16v3a2 2 0 01-2 2h-3M8 21H5a2 2 0 01-2-2v-3"/><rect x="8" y="8" width="3" height="3"/><rect x="13" y="8" width="3" height="3"/><rect x="8" y="13" width="3" height="3"/><path d="M13 13h3v3"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.1L22 12l-7.6 2.9L12 22l-2.4-7.1L2 12l7.6-2.9z"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+</svg>
+
+{% for m in messages %}<div class="msg {{ m.tags }}">{{ m }}</div>{% endfor %}
+{% block content %}{% endblock %}
+
+{% if user.is_authenticated %}
+<nav>
+  <a href="{% url 'home' %}" class="{% if request.resolver_match.url_name == 'home' %}on{% endif %}"><svg class="i"><use href="#i-ring"/></svg>Asosiy</a>
+  <a href="{% url 'payments' %}" class="{% if request.resolver_match.url_name == 'payments' or request.resolver_match.url_name == 'pay' %}on{% endif %}"><svg class="i"><use href="#i-wallet"/></svg>To'lov</a>
+    <a href="{% url 'transfer' %}" class="{% if request.resolver_match.url_name == 'transfer' or request.resolver_match.url_name == 'send' %}on{% endif %}"><svg class="i"><use href="#i-transfer"/></svg>O'tkazma</a>
+  <a href="{% url 'history' %}" class="{% if request.resolver_match.url_name == 'history' %}on{% endif %}"><svg class="i"><use href="#i-pie"/></svg>Hisobotlar</a>
+  <a href="{% url 'miniapps' %}" class="{% if request.resolver_match.url_name == 'miniapps' %}on{% endif %}"><svg class="i"><use href="#i-apps"/></svg>Mini Apps<span class="new">New</span></a>
+</nav>
+{% endif %}
+</body>
+</html>

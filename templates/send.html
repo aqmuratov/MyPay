@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="ptitle">O'tkazma</div>
+<form method="post" class="card">{% csrf_token %}
+  <input name="username" value="{{ to }}" placeholder="Qabul qiluvchi (username)" required>
+  <input name="amount" type="number" min="1" step="1" placeholder="Summa" required {% if to %}autofocus{% endif %}>
+  <button>O'tkazish</button>
+</form>
+{% endblock %}

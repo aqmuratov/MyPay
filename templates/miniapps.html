@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% block content %}
+{% include '_micons.html' %}
+
+<div class="mh">
+  <h1>Mini Apps</h1>
+  <select class="reg" onchange="soon()">
+    <option>Barcha hududlar</option>
+    <option>Toshkent</option>
+    <option>Samarqand</option>
+    <option>Buxoro</option>
+    <option>Qoraqalpog'iston</option>
+  </select>
+</div>
+
+<label class="psearch" style="margin:10px 24px 0">
+  <svg class="i"><use href="#i-search"/></svg>
+  <input id="q" type="search" placeholder="Qidiruv" autocomplete="off">
+</label>
+
+<a class="mon" href="#" onclick="return soon()" style="margin-top:20px">
+  <svg class="i dots"><use href="#i-apps"/></svg>
+  <div><b>Asosiydagi Mini Apps</b><span>Vidjetni sozlash</span></div>
+  <svg class="i go"><use href="#i-chev"/></svg>
+</a>
+
+<div class="mtitle">Mening MyPayim</div>
+<div class="sg" id="g1">
+  <a href="#" onclick="return soon()"><span class="mic"><svg><use href="#m-home"/></svg></span>Uyim</a>
+  <a href="#" onclick="return soon()"><span class="mic"><svg><use href="#m-leaf"/></svg></span>Yashil meros</a>
+  <a href="#" onclick="return soon()"><span class="mic"><svg><use href="#m-car"/></svg></span>Avto</a>
+  <a href="#" onclick="return soon()"><span class="mic"><svg><use href="#m-family"/></svg></span>Mening oilam</a>
+</div>
+
+<div class="mtitle" style="padding-top:34px">To'lovlar</div>
+<div class="sg" id="g2">
+  <a href="#" onclick="return soon()"><span class="mic"><svg><use href="#m-clock"/></svg></span>Kartalar monitoringi</a>
+  <a href="#" onclick="return soon()"><span class="mic"><svg><use href="#q-cal"/></svg></span>Avtoto'lovlar</a>
+  <a href="#" onclick="return soon()"><span class="mic"><svg><use href="#q-star"/></svg></span>Tanlangan to'lovlar</a>
+  <a href="#" onclick="return soon()"><span class="mic"><svg><use href="#q-pin"/></svg></span>Joyda to'lov</a>
+</div>
+
+<div class="cch" id="chips">
+  <span class="chip on" data-k="home"><svg class="i"><use href="#k-home"/></svg>Uydagi oqshom</span>
+  <span class="chip" data-k="transport"><svg class="i"><use href="#k-car"/></svg>Transport</span>
+  <span class="chip" data-k="food"><svg class="i"><use href="#k-food"/></svg>Ovqat</span>
+  <span class="chip" data-k="shop"><svg class="i"><use href="#k-bag"/></svg>Xaridlar</span>
+</div>
+
+<div id="list"></div>
+
+<a class="fab" href="#" onclick="return soon()"><svg class="i"><use href="#i-spark"/></svg></a>
+
+<script>
+  var DATA = {
+    home: [
+      ['Taksi', 'Oilaviy taksi', '#1fb5a0'],
+      ['Taom yetkazish', 'Issiq taomlar uyingizgacha', '#15803d'],
+      ['Kino', 'Filmlar va seriallar obunasi', '#7c3aed']
+    ],
+    transport: [
+      ['Taksi', 'Shahar bo\'ylab tez safar', '#eab308'],
+      ['Aviabilet', 'Reyslarni qidirish va xarid', '#a21caf'],
+      ['Poyezd', 'Temir yo\'l biletlari', '#2563eb']
+    ],
+    food: [
+      ['Taom yetkazish', 'Issiq taomlar uyingizgacha', '#15803d'],
+      ['Kofe', 'Kofexonalarda oldindan buyurtma', '#92400e'],
+      ['Pishiriq', 'Yangi nonlar va shirinliklar', '#db2777']
+    ],
+    shop: [
+      ['Internet-do\'kon', 'Barcha tovarlar bir joyda', '#1a73ff'],
+      ['Bo\'lib to\'lash', 'Muddatli to\'lov bilan xarid', '#ea580c'],
+      ['Chegirmalar', 'Aksiyalar va promokodlar', '#e11d48']
+    ]
+  };
+
+  var list = document.getElementById('list');
+  var chips = document.querySelectorAll('.chip');
+
+  function row(it) {
+    var a = document.createElement('a');
+    a.className = 'mapp';
+    a.href = '#';
+    a.onclick = function () { return soon(); };
+    var lg = document.createElement('div');
+    lg.className = 'mlg';
+    lg.style.background = it[2];
+    lg.textContent = it[0].charAt(0);
+    var box = document.createElement('div');
+    var b = document.createElement('b'); b.textContent = it[0];
+    var s = document.createElement('span'); s.textContent = it[1];
+    box.appendChild(b); box.appendChild(s);
+    a.appendChild(lg); a.appendChild(box);
+    return a;
+  }
+
+  function show(items) {
+    list.innerHTML = '';
+    items.forEach(function (it) { list.appendChild(row(it)); });
+  }
+
+  chips.forEach(function (c) {
+    c.addEventListener('click', function () {
+      chips.forEach(function (x) { x.classList.remove('on'); });
+      c.classList.add('on');
+      document.getElementById('q').value = '';
+      filterIcons('');
+      show(DATA[c.dataset.k]);
+    });
+  });
+
+  function filterIcons(t) {
+    ['g1', 'g2'].forEach(function (id) {
+      var g = document.getElementById(id), any = false;
+      g.querySelectorAll('a').forEach(function (a) {
+        var ok = !t || a.textContent.toLowerCase().indexOf(t) > -1;
+        a.classList.toggle('hide', !ok);
+        if (ok) any = true;
+      });
+      g.classList.toggle('hide', !any);
+      g.previousElementSibling.classList.toggle('hide', !any);
+    });
+  }
+
+  // Qidiruv: ikonkalar va barcha kategoriyalardagi ro'yxatdan qidiradi
+  document.getElementById('q').addEventListener('input', function (e) {
+    var t = e.target.value.trim().toLowerCase();
+    filterIcons(t);
+    if (!t) {
+      var on = document.querySelector('.chip.on') || chips[0];
+      on.classList.add('on');
+      show(DATA[on.dataset.k]);
+      return;
+    }
+    chips.forEach(function (x) { x.classList.remove('on'); });
+    var found = [], seen = {};
+    Object.keys(DATA).forEach(function (k) {
+      DATA[k].forEach(function (it) {
+        if (!seen[it[0]] && (it[0] + ' ' + it[1]).toLowerCase().indexOf(t) > -1) {
+          seen[it[0]] = 1; found.push(it);
+        }
+      });
+    });
+    show(found);
+  });
+
+  show(DATA.home);
+</script>
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="htop">
+  <h1>Hisobotlar</h1>
+  <div class="acts">
+    <a href="{% url 'history_export' %}"><svg class="i"><use href="#i-dl"/></svg></a>
+    <a href="#" onclick="return soon()"><svg class="i"><use href="#i-pieo"/></svg></a>
+  </div>
+</div>
+
+<label class="psearch" style="margin:0 24px">
+  <svg class="i"><use href="#i-search"/></svg>
+  <input id="q" type="search" placeholder="Qidiruv" autocomplete="off">
+</label>
+
+<form class="chips" method="get">
+  <select name="card" onchange="soon()">
+    <option>Kartalar</option>
+    <option>Hamyon</option>
+  </select>
+  <select name="type" onchange="this.form.submit()">
+    <option value="">Operatsiya turi</option>
+    <option value="in" {% if sel_type == 'in' %}selected{% endif %}>Tushumlar</option>
+    <option value="transfer" {% if sel_type == 'transfer' %}selected{% endif %}>O'tkazmalar</option>
+    <option value="payment" {% if sel_type == 'payment' %}selected{% endif %}>To'lovlar</option>
+  </select>
+  <select name="period" onchange="this.form.submit()">
+    <option value="">Davr</option>
+    <option value="week" {% if sel_period == 'week' %}selected{% endif %}>Oxirgi 7 kun</option>
+    <option value="month" {% if sel_period == 'month' %}selected{% endif %}>Shu oy</option>
+  </select>
+</form>
+
+<div class="sum">
+  <div>
+    <div class="l">{{ month }} uchun tushumlar</div>
+    <div class="v"><svg class="i"><use href="#h-in"/></svg>{{ month_in }} <small>so'm</small></div>
+  </div>
+  <div>
+    <div class="l">{{ month }} uchun xarajatlar</div>
+    <div class="v"><svg class="i"><use href="#h-out"/></svg>{{ month_out }} <small>so'm</small></div>
+  </div>
+</div>
+
+<a class="mon" href="#" onclick="return soon()">
+  <svg class="i"><use href="#h-mon"/></svg>
+  <div><b>Monitoringni ulang</b><span>Faqat MyPay orqali amalga oshirilgan operatsiyalar ko'rsatiladi</span></div>
+  <svg class="i go"><use href="#i-chev"/></svg>
+</a>
+
+{% for g in groups %}
+<div class="dg">
+  <div class="dh">
+    <h3>{{ g.label }}</h3>
+    <div class="sub">
+      {% if g.spent %}<span>Sarflangan</span><span>- {{ g.spent_s }} so'm</span>
+      {% else %}<span>Tushgan</span><span>+ {{ g.got_s }} so'm</span>{% endif %}
+    </div>
+  </div>
+  {% for t in g.items %}
+  <div class="hrow" data-s="{{ t.title|lower }} {{ t.sub|lower }}">
+    <div class="hi"><svg class="i"><use href="#{{ t.icon }}"/></svg></div>
+    <div class="nm"><b>{{ t.title }}</b><span>{{ t.sub }}</span></div>
+    <div class="am {% if not t.out %}in{% endif %}">{% if t.out %}-{% else %}+{% endif %}{{ t.amount }} <small>so'm</small><i>{{ t.time }}</i></div>
+  </div>
+  {% endfor %}
+</div>
+{% empty %}
+<div class="empty">Amallar topilmadi</div>
+{% endfor %}
+
+<a class="fab" href="#" onclick="return soon()"><svg class="i"><use href="#i-spark"/></svg></a>
+
+<script>
+  // Qidiruv: yozilgan matn bo'yicha amallarni filtrlaydi
+  document.getElementById('q').addEventListener('input', function (e) {
+    var t = e.target.value.trim().toLowerCase();
+    document.querySelectorAll('.hrow').forEach(function (r) {
+      r.classList.toggle('hide', t && r.dataset.s.indexOf(t) === -1);
+    });
+    document.querySelectorAll('.dg').forEach(function (g) {
+      g.classList.toggle('hide', !g.querySelector('.hrow:not(.hide)'));
+    });
+  });
+</script>
+{% endblock %}

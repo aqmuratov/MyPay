@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="hdr">
+  <div class="avatar">{{ user.username|slice:":1"|upper }}<span class="chk"><svg class="i"><use href="#i-check"/></svg></span></div>
+  <a class="search" id="srch" href="{% url 'transfer' %}"><svg class="i" id="srch-ic"><use href="#i-card"/></svg><span id="srch-tx">Kartaga o'tkazma</span></a>
+  <svg class="i bell"><use href="#i-bell"/></svg>
+</div>
+
+<div class="balance">
+  <div class="biz">MyPay Business</div>
+  <div class="muted lg">Umumiy balans</div>
+  <div class="big"><span id="bal" data-v="{{ wallet.balance|floatformat:'0g' }}">{{ wallet.balance|floatformat:"0g" }}</span> <small>so'm</small></div>
+  <div class="muted lg">Mening hamyonim</div>
+  <div class="row"><span class="dot"><svg class="i"><use href="#i-wallet"/></svg></span><span id="wal" data-v="{{ wallet.balance|floatformat:'0g' }}">{{ wallet.balance|floatformat:"0g" }}</span> <span>so'm</span></div>
+  <button class="eye" onclick="toggleBal()"><svg class="i"><use href="#i-eye"/></svg></button>
+  <div class="promo">Promo</div>
+</div>
+
+<div class="tiles">
+  <a href="#" onclick="return soon()"><svg class="i"><use href="#i-barcode"/></svg>Pass</a>
+  <a href="#" onclick="return soon()"><svg class="i"><use href="#i-phone"/></svg>Boom</a>
+  <a href="{% url 'payments' %}"><svg class="i"><use href="#i-wallet"/></svg>Kartalar va hamyon</a>
+  <a href="#" onclick="return soon()"><svg class="i"><use href="#i-qr"/></svg>QR skaner</a>
+</div>
+
+<a class="my" href="{% url 'history' %}">
+  <span class="logo"><svg class="i"><use href="#i-spark"/></svg></span>
+  <div><b>Mening MyPay</b><span class="muted" style="font-size:16px">Muhim voqealarni ko'ring</span></div>
+  <svg class="i go"><use href="#i-chev"/></svg>
+</a>
+
+<div class="banners">
+  <div class="banner"><b>Barchasi bir internet-do'konda</b><span>O'tish</span></div>
+  <div class="banner b2"><b>Kommunal to'lovlar bir joyda</b><span>To'lash</span></div>
+</div>
+
+<div class="sec">Mini Apps <a href="{% url 'miniapps' %}">Barchasi</a></div>
+{% include '_minis.html' %}
+
+<div class="sec">Mobil aloqa uchun to'lov</div>
+<form class="phone" method="get" action="{% url 'pay' 'mobile' %}">
+  <div class="inp">
+    <input id="phone" name="phone" type="tel" inputmode="numeric" value="+998" autocomplete="tel">
+    <span class="pk"><svg class="i"><use href="#i-user"/></svg></span>
+  </div>
+  <button type="submit">To'lash</button>
+</form>
+
+<div class="stories">
+  <div class="story s1">
+    <b>Tez to'lov yanada yaqin</b>
+    <svg class="ph" viewBox="0 0 80 120"><rect x="6" y="6" width="68" height="130" rx="12" fill="#e5e7eb" stroke="#9ca3af" stroke-width="3"/><rect x="18" y="26" width="44" height="44" rx="6" fill="#fff"/><use href="#i-qr" x="24" y="32" width="32" height="32" color="#1a73ff"/></svg>
+  </div>
+  <div class="story s2"><span class="big0">0%</span><b>komissiya</b><span class="t">barcha to'lovlarda</span></div>
+  <div class="story s3"><span class="pill">Aksiya</span><b>5% cashback</b></div>
+  <div class="story s4"><b>Kartani ulang</b></div>
+</div>
+
+<div class="sec">Joylarda to'lov <a href="#" onclick="return soon()">Barchasi</a></div>
+<a class="place" href="#" onclick="return soon()">
+  <span class="pl pl1"><svg><use href="#m-wave"/></svg></span>
+  <div><b>AQUA PARK</b><span class="muted"><svg class="i nv"><use href="#i-nav"/></svg>849 m</span></div>
+</a>
+<a class="place" href="#" onclick="return soon()">
+  <span class="pl pl2"><svg><use href="#m-oil"/></svg></span>
+  <div><b>MOYKA PLUS</b><span class="muted"><svg class="i nv"><use href="#i-nav"/></svg>1,1 km</span></div>
+</a>
+
+<a class="settings" href="#" onclick="return soon()"><svg class="i"><use href="#i-gear"/></svg>Ekran sozlamalari</a>
+
+<form method="post" action="{% url 'logout' %}" style="padding:0 24px">{% csrf_token %}
+  <button style="background:#2a2a2e">Chiqish</button>
+</form>
+
+<a class="fab" href="#" onclick="return soon()"><svg class="i"><use href="#i-spark"/></svg></a>
+
+<script>
+  function toggleBal() {
+    ['bal', 'wal'].forEach(function (id) {
+      var e = document.getElementById(id);
+      e.textContent = e.textContent.indexOf('•') > -1 ? e.dataset.v : '•••••';
+    });
+  }
+
+  // Telefon raqamni +998 (99) 331-10-17 ko'rinishida yozish
+  var ph = document.getElementById('phone');
+  function fmt(v) {
+    var d = v.replace(/\D/g, '');
+    if (d.indexOf('998') === 0) d = d.slice(3);
+    d = d.slice(0, 9);
+    var out = '+998';
+    if (d.length) out += ' (' + d.slice(0, 2);
+    if (d.length > 2) out += ') ' + d.slice(2, 5);
+    if (d.length > 5) out += '-' + d.slice(5, 7);
+    if (d.length > 7) out += '-' + d.slice(7, 9);
+    return out;
+  }
+  ph.addEventListener('input', function () { ph.value = fmt(ph.value); });
+
+  // Pastga aylantirganda "Kartaga o'tkazma" -> "Qidiruv"
+  var scrolled = false;
+  window.addEventListener('scroll', function () {
+    var s = window.scrollY > 260;
+    if (s === scrolled) return;
+    scrolled = s;
+    document.querySelector('#srch-ic use').setAttribute('href', s ? '#i-search' : '#i-card');
+    document.getElementById('srch-tx').textContent = s ? 'Qidiruv' : "Kartaga o'tkazma";
+    document.getElementById('srch').setAttribute('href', s ? "{% url 'payments' %}" : "{% url 'transfer' %}");
+  }, { passive: true });
+</script>
+{% endblock %}

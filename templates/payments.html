@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="ptitle">To'lov</div>
+
+<div class="psrow">
+  <label class="psearch">
+    <svg class="i"><use href="#i-search"/></svg>
+    <input id="q" type="search" placeholder="Qidiruv" autocomplete="off">
+  </label>
+  <a class="pqr" href="#" onclick="return soon()"><svg class="i"><use href="#i-qr"/></svg></a>
+</div>
+
+<div class="quick">
+  <a href="#" onclick="return soon()"><svg class="i"><use href="#q-cal"/></svg>Avtoto'lovlar</a>
+  <a href="#" onclick="return soon()"><svg class="i"><use href="#q-star"/></svg>Tanlangan to'lovlar</a>
+  <a href="{% url 'history' %}"><svg class="i"><use href="#q-receipt"/></svg>To'lovga hisoblar</a>
+  <a href="#" onclick="return soon()"><svg class="i"><use href="#q-pin"/></svg>Joyda to'lov</a>
+</div>
+
+{% if last %}
+<div class="saved">
+  <div class="si"><svg class="i"><use href="#i-wallet"/></svg></div>
+  <b>{{ last.title }}</b>
+  <div class="muted">{{ last.amount|floatformat:"0g" }} so'm</div>
+</div>
+{% endif %}
+
+<div class="cats" id="cats">
+  <div class="cat"><a href="{% url 'pay' 'mobile' %}"><svg class="i"><use href="#c-signal"/></svg>Mobil operatorlar</a></div>
+  <div class="cat"><a href="#" onclick="return soon()"><svg class="i"><use href="#c-gov"/></svg>Davlat xizmatlari va DYHXX (GAI)</a></div>
+  <details class="cat">
+    <summary><svg class="i"><use href="#c-house"/></svg>Kommunal to'lovlar</summary>
+    <div class="sub">
+      <a href="{% url 'pay' 'electric' %}">Elektr energiya</a>
+      <a href="{% url 'pay' 'gas' %}">Tabiiy gaz</a>
+      <a href="{% url 'pay' 'water' %}">Suv</a>
+    </div>
+  </details>
+  <div class="cat"><a href="#" onclick="return soon()"><svg class="i"><use href="#c-percent"/></svg>Mikrokredit va muddatli to'lov</a></div>
+  <div class="cat"><a href="#" onclick="return soon()"><svg class="i"><use href="#c-bank"/></svg>Bank kreditlarini so'ndirish</a></div>
+  <div class="cat"><a href="{% url 'pay' 'internet' %}"><svg class="i"><use href="#c-wifi"/></svg>Internet provayderlar</a></div>
+</div>
+
+<a class="fab" href="#" onclick="return soon()"><svg class="i"><use href="#i-spark"/></svg></a>
+
+<script>
+  // Qidiruv: yozilgan matn bo'yicha kategoriyalarni filtrlaydi
+  document.getElementById('q').addEventListener('input', function (e) {
+    var t = e.target.value.trim().toLowerCase();
+    document.querySelectorAll('#cats .cat').forEach(function (c) {
+      c.classList.toggle('hide', t && c.textContent.toLowerCase().indexOf(t) === -1);
+    });
+  });
+</script>
+{% endblock %}

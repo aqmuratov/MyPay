@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="ptitle">O'tkazmalar</div>
+
+<form class="tsearch" method="get" action="{% url 'send' %}">
+  <input id="q" name="to" placeholder="Karta, hamyon yoki foydalanuvchi nomi" autocomplete="off">
+  <svg class="i" onclick="soon()"><use href="#i-contact"/></svg>
+  <svg class="i sc" onclick="soon()"><use href="#i-scan"/></svg>
+</form>
+
+<div class="ttiles">
+  <a href="#" onclick="return soon()"><svg class="i"><use href="#t-swap"/></svg>Kartalarim<br>orasida</a>
+  <a href="#" onclick="return soon()"><svg class="i"><use href="#t-request"/></svg>Pul<br>so'rash</a>
+  <a href="#" onclick="return soon()"><svg class="i"><use href="#t-lend"/></svg>Qarzga<br>berish</a>
+  <a href="#" onclick="return soon()"><svg class="i"><use href="#i-phone"/></svg>Boom</a>
+</div>
+
+<a class="bigrow" href="#" onclick="return soon()">
+  <svg class="i"><use href="#t-phone"/></svg>Telefon raqami orqali
+  <svg class="i go"><use href="#i-chev"/></svg>
+</a>
+
+{% for g in groups %}
+<div class="grp">
+  <div class="dlabel">{% if forloop.first %}Oxirgilar: {% endif %}{{ g.label }}</div>
+  {% for r in g.items %}
+  <a class="rec" href="{% url 'send' %}?to={{ r.username|urlencode }}" data-name="{{ r.username|lower }}">
+    <div class="rav">{{ r.initials }}</div>
+    <b>{{ r.username|capfirst }}{% if r.verified %}<svg class="i vf"><use href="#i-verified"/></svg>{% endif %}{% if r.new %}<i class="nb">{{ r.new }}</i>{% endif %}</b>
+    <div class="racts">
+      <svg class="i" onclick="event.preventDefault();event.stopPropagation();soon()"><use href="#i-pencil"/></svg>
+      <hr>
+      <svg class="i" onclick="event.preventDefault();event.stopPropagation();soon()"><use href="#i-starline"/></svg>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% empty %}
+<div class="empty">Hali o'tkazmalar yo'q.<br>Yuqoridagi qatorga foydalanuvchi nomini yozing.</div>
+{% endfor %}
+
+<a class="fab" href="#" onclick="return soon()"><svg class="i"><use href="#i-spark"/></svg></a>
+
+<script>
+  // Yozganda "Oxirgilar" ro'yxatini filtrlaydi, Enter bosilsa o'tkazma sahifasiga o'tadi
+  document.getElementById('q').addEventListener('input', function (e) {
+    var t = e.target.value.trim().toLowerCase();
+    document.querySelectorAll('.rec').forEach(function (r) {
+      r.classList.toggle('hide', t && r.dataset.name.indexOf(t) === -1);
+    });
+    document.querySelectorAll('.grp').forEach(function (g) {
+      g.classList.toggle('hide', !g.querySelector('.rec:not(.hide)'));
+    });
+  });
+</script>
+{% endblock %}

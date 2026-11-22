@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="top"><h2>{{ service.name }}</h2></div>
+<form method="post" class="card">{% csrf_token %}
+  <input name="account" value="{{ prefill }}" placeholder="{{ service.label }}" required>
+  <input name="amount" type="number" min="1" placeholder="Summa" required>
+  <button>To'lash</button>
+</form>
+{% endblock %}
