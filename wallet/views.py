@@ -268,19 +268,25 @@ def pay(request, code):
 
 
 def manifest(request):
-    return JsonResponse({
+    data = {
+        'id': '/',
         'name': 'MyPay',
         'short_name': 'MyPay',
+        'description': "MyPay: o'quv maqsadidagi virtual hamyon",
+        'lang': 'uz',
         'start_url': '/',
+        'scope': '/',
         'display': 'standalone',
+        'orientation': 'portrait',
         'background_color': '#121214',
         'theme_color': '#121214',
         'icons': [
-            {'src': '/static/icon-192.png', 'sizes': '192x192', 'type': 'image/png'},
-            {'src': '/static/icon-512.png', 'sizes': '512x512', 'type': 'image/png'},
+            {'src': '/static/icon-192.png', 'sizes': '192x192', 'type': 'image/png', 'purpose': 'any'},
+            {'src': '/static/icon-512.png', 'sizes': '512x512', 'type': 'image/png', 'purpose': 'any'},
+            {'src': '/static/icon-maskable-512.png', 'sizes': '512x512', 'type': 'image/png', 'purpose': 'maskable'},
         ],
-    })
-
+    }
+    return JsonResponse(data, content_type='application/manifest+json')
 
 def service_worker(request):
     js = """
