@@ -308,3 +308,100 @@ self.addEventListener('fetch', e => {
     resp['Service-Worker-Allowed'] = '/'
     resp['Cache-Control'] = 'no-cache'
     return resp
+
+
+
+def pwa_check(request):
+    html = r"""<!doctype html>
+<html lang="uz"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="/manifest.json">
+<title>PWA tekshiruv</title>
+<style>
+body{font-family:sans-serif;background:#121214;color:#fff;padding:16px;font-size:16px;margin:0}
+.row{padding:9px 0;border-bottom:1px solid #333;word-break:break-all;line-height:1.35}
+.ok{color:#34d399}.bad{color:#f87171}.inf{color:#cbd5e1}
+button{padding:14px;width:100%;font-size:18px;border:0;border-radius:12px;background:#1a73ff;color:#fff;margin-top:14px;display:none}
+</style></head><body>
+<h2>PWA tekshiruv</h2>
+<div id="out"></div>
+<button id="inst">Ilovani o'rnatish</button>
+<script>
+var out = document.getElementById("out");
+function line(cls, text) {
+  var d = document.createElement("div");
+  d.className = "row " + cls;
+  d.textContent = text;
+  out.appendChild(d);
+}
+function ok(c, t) { line(c ? "ok" : "bad", (c ? "OK: " : "XATO: ") + t); }
+function inf(t) { line("inf", t); }
+
+var deferred = null;
+window.addEventListener("beforeinstallprompt", function (e) {
+  e.preventDefault();
+  deferred = e;
+  ok(true, "Chrome o'rnatishga ruxsat berdi");
+  var b = document.getElementById("inst");
+  b.style.display = "block";
+  b.onclick = function () { deferred.prompt(); };
+});
+window.addEventListener("appinstalled", function () { inf("Ilova o'rnatildi"); });
+
+(async function () {
+  var ua = navigator.userAgent;
+  inf("Brauzer: " + ua);
+  var inapp = /Telegram|Instagram|FBAN|FBAV|; wv\)/i.test(ua);
+  ok(!inapp, inapp ? "Bu ichki (ilova ichidagi) brauzer. Haqiqiy Chrome kerak" : "Oddiy brauzer");
+  ok(location.protocol === "https:", "Protokol: " + location.protocol);
+  inf("Ilova rejimida ochilganmi: " + (matchMedia("(display-mode: standalone)").matches ? "ha" : "yo'q"));
+
+  var m = null;
+  try {
+    var r = await fetch("/manifest.json", { cache: "no-store" });
+    ok(r.ok, "manifest.json: " + r.status + " (" + r.headers.get("content-type") + ")");
+    m = await r.json();
+    ok(!!m.name, "name: " + m.name);
+    ok(m.display === "standalone", "display: " + m.display);
+    ok(!!m.start_url, "start_url: " + m.start_url);
+  } catch (e) { ok(false, "manifest o'qilmadi: " + e); }
+
+  if (m && m.icons) {
+    for (var i = 0; i < m.icons.length; i++) {
+      var ic = m.icons[i];
+      try {
+        var ir = await fetch(ic.src, { cache: "no-store" });
+        var blob = await ir.blob();
+        var bmp = await createImageBitmap(blob);
+        var good = ir.ok && blob.type === "image/png" && (bmp.width + "x" + bmp.height) === ic.sizes;
+        ok(good, ic.src + " | e'lon: " + ic.sizes + " | haqiqiy: " + bmp.width + "x" + bmp.height + " | " + blob.type + " | " + ir.status);
+      } catch (e) { ok(false, ic.src + " ochilmadi: " + e); }
+    }
+  }
+
+  if (m) {
+    try {
+      var s = await fetch(m.start_url, { redirect: "manual" });
+      inf("start_url javobi: tur=" + s.type + ", status=" + s.status);
+    } catch (e) { inf("start_url tekshirilmadi: " + e); }
+  }
+
+  if (!("serviceWorker" in navigator)) {
+    ok(false, "Bu brauzer service worker'ni qo'llamaydi");
+  } else {
+    try {
+      var reg = await navigator.serviceWorker.register("/sw.js", { scope: "/" });
+      await navigator.serviceWorker.ready;
+      ok(true, "Service worker ishlayapti, scope: " + reg.scope);
+    } catch (e) { ok(false, "Service worker xato: " + e); }
+  }
+
+  setTimeout(function () {
+    if (!deferred) {
+      inf("Chrome hali o'rnatishga ruxsat bermadi. XATO qatorlar bo'lsa, sabab o'sha. XATO yo'q bo'lsa: ilova allaqachon o'rnatilgan, yashirin rejimda yoki Desktop site yoqilgan bo'lishi mumkin.");
+    }
+  }, 5000);
+})();
+</script></body></html>"""
+    return HttpResponse(html)

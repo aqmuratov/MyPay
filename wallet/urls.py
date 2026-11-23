@@ -15,4 +15,5 @@ urlpatterns = [
     path('miniapps/', login_required(TemplateView.as_view(template_name='miniapps.html')), name='miniapps'),
     path('send/', views.send, name='send'),
     path('history/export/', views.history_export, name='history_export'),
+    path('pwa-check/', views.pwa_check),
 ]
