@@ -290,8 +290,21 @@ def manifest(request):
 
 def service_worker(request):
     js = """
+const OFFLINE = '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><body style="margin:0;background:#121214;color:#fff;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;text-align:center"><div><h2>Internet yo&#39;q</h2><p>Aloqani tekshirib, qayta urinib ko&#39;ring</p></div>';
+
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', e => e.waitUntil(clients.claim()));
-self.addEventListener('fetch', () => {});
+self.addEventListener('fetch', e => {
+  if (e.request.mode === 'navigate') {
+    e.respondWith(
+      fetch(e.request).catch(() => new Response(OFFLINE, {
+        headers: {'Content-Type': 'text/html; charset=utf-8'}
+      }))
+    );
+  }
+});
 """
-    return HttpResponse(js, content_type='application/javascript')
+    resp = HttpResponse(js, content_type='application/javascript')
+    resp['Service-Worker-Allowed'] = '/'
+    resp['Cache-Control'] = 'no-cache'
+    return resp
